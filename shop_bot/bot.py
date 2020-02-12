@@ -1,5 +1,5 @@
 from telebot import (TeleBot,types)
-from shop_bot.models.model import (Category)
+from models.model import (Category)
 
 class TGBot(TeleBot):
 
