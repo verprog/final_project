@@ -1,9 +1,33 @@
 # from telebot import TeleBot
 from bot import TGBot
-from shop_bot.config import TOKEN
-from shop_bot.models.model import (Texts, Category, Product, Cart)
-from shop_bot.keyboards import START_KB
-from telebot.types import (ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup)
+from config import TOKEN
+from models.model import (Texts, Category, Product, Cart)
+from keyboards import START_KB
+from telebot.types import (ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup, Update)
+from flask import Flask, request, abort
+
+app = Flask(__name__)
+bot = TGBot(token=TOKEN)
+
+
+@app.route('/', methods=['POST'])
+def webhook():
+    """
+    Function process webhook call
+    """
+    if request.headers.get('content-type') == 'application/json':
+
+        json_string = request.get_data().decode('utf-8')
+        update = Update.de_json(json_string)
+        bot.process_new_updates([update])
+        return ''
+
+    else:
+        abort(403)
+
+
+
+
 
 
 # bot = TeleBot(token=TOKEN)
