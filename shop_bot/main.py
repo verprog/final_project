@@ -109,28 +109,7 @@ if __name__ == '__main__':
     bot.remove_webhook()
     time.sleep(1)
     bot.set_webhook(url=WEBHOOK_URL,
-                    certificate="""
-                    MIIDmzCCAoOgAwIBAgIULmljIdcrS9qHpJ+8VKhPTnP9ezowDQYJKoZIhvcNAQEL
-BQAwXTELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoM
-GEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDEWMBQGA1UEAwwNMzQuNzAuMTI3LjE5
-ODAeFw0yMDAyMTIxODE2NTZaFw0yMTAyMTExODE2NTZaMF0xCzAJBgNVBAYTAkFV
-MRMwEQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRz
-IFB0eSBMdGQxFjAUBgNVBAMMDTM0LjcwLjEyNy4xOTgwggEiMA0GCSqGSIb3DQEB
-AQUAA4IBDwAwggEKAoIBAQCmn76Up6jO7o3mifzw7xF7Ks7sqRZ/0k+Hn2P8EXIj
-p1sUAWV/6fSDH85QMu5NPowcFqjwIl2XZdeHQNhaZR+Ly2gVRr84tNNEXf0VoMiu
-2SzJx0SaxaVxSIX4B8ZJMOFFDIfnk722s6EIbbqxOzDAb+wP9LYs33JWQowhd1VY
-URIrps9Rn8k/AaxIA8hhu3gqotoEnrCcKa/tFtC+A8hzJTjn4hNJQ7E0DurCPeAD
-Rzo//+8CrInmmqj75122wDsamOauCURIm4IbZI+OhiAVdbFlowbRp6htgYPhq5Ku
-P+V55eBMja1hzcVwpAkVwTOatwQtUjDHhHMVdOYKu8cLAgMBAAGjUzBRMB0GA1Ud
-DgQWBBRv+hZZFRw4TA/it0byyj0dopIsPjAfBgNVHSMEGDAWgBRv+hZZFRw4TA/i
-t0byyj0dopIsPjAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQCX
-X/0WKjVvF1FHtq2v+I+IBqdDEG088DOPp1emxPzvm6xJFVbNuUnceD8bUjvFTsOI
-54vFIunVa9a/5+6AkJXPBxQkoFr/asafODzm5rLmm7xKFAxeapOCA4E7kfNeMo8N
-rr3anAsNDeif0Ky+A8XM3w7VHJIMt0O2WApIX7FG9Kml+K4BnIf3+lLNKpaHhm59
-UoeRMouC3YOhvVQmtJ9uA3dv7ZSvcUp4YVPkKNtTXqGg4HwL4TDyIBEawq+ETyMQ
-w3jedfcpYRYcUgg69nXd8S0nZjlpbbgO8VakVk0NigE1UUWI838pDiXFuHqKJ2pT
-takUYsd2zSGxerRyXBOo
-                    """
+                    certificate=open('nginx-selfsigned.crt', 'r')
                     )
     app.run(host='127.0.0.1',port=5000, debug=True)
 # bot.polling()
