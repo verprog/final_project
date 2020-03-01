@@ -39,6 +39,6 @@ class TGBot(TeleBot):
         kb.add(*buttons)
         if not force_send:
             return kb
-        self.send_message(user_id, text, reply_markup=kb)
-        # self.edit_message_text(chat_id=user_id, text=text, reply_markup=kb)
+        # self.send_message(user_id, text, reply_markup=kb)
+        TGBot.edit_message_text(text=text, chat_id=user_id, reply_markup=kb)
         # self.edit_message_text(category.title, message_id=user_id, reply_markup=kb)

@@ -1,4 +1,4 @@
-# from telebot import TeleBot
+from telebot import TeleBot
 from bot import TGBot
 from config import TOKEN, WEBHOOK_URL, PATH
 from models.model import (Texts, Category, Product, Cart)
@@ -7,7 +7,7 @@ from telebot.types import (ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardBu
 from flask import Flask, request, abort
 
 app = Flask(__name__)
-bot = TGBot(token=TOKEN)
+bot = TeleBot(token=TOKEN)
 
 
 @app.route(f'/{PATH}', methods=['POST'])
@@ -27,7 +27,7 @@ def webhook():
 
 
 # bot = TeleBot(token=TOKEN)
-bot = TGBot(token=TOKEN)
+# bot = TeleBot(token=TOKEN)
 
 
 @bot.message_handler(commands=['start'])
@@ -81,11 +81,11 @@ def get_cat_or_products(call):
 
 
 
-@bot.callback_query_handler(func=lambda call: call.data.split('_')[0] == 'product')
-def add_to_car(call):
-    product_id = call.data.split('_')[1]
-    cart = Cart.get_or_create_cart(user_id=call.message.chat.id)
-    cart.add_product_to_cart(product_id=product_id)
+# @bot.callback_query_handler(func=lambda call: call.data.split('_')[0] == 'product')
+# def add_to_car(call):
+#     product_id = call.data.split('_')[1]
+#     cart = Cart.get_or_create_cart(user_id=call.message.chat.id)
+#     cart.add_product_to_cart(product_id=product_id)
 
 
 
@@ -111,6 +111,7 @@ if __name__ == '__main__':
     bot.set_webhook(url=WEBHOOK_URL,
                     certificate=open('nginx-selfsigned.crt', 'r')
                     )
-    app.run(host='127.0.0.1',port=5000, debug=True)
+    app.run(host='127.0.0.1', port=5000, debug=True)
+
 # bot.polling()
 

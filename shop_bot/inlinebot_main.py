@@ -18,6 +18,7 @@ def start(message):
 
 @bot.inline_handler(func=lambda query: True)
 def inline(query):
+
     resultes = [] # input_message_content=types.InputTextMessageContent(message_text='Текст после нажатия'),
     for i in range(10):
         kb = types.InlineKeyboardMarkup()
@@ -35,7 +36,6 @@ def inline(query):
                 disable_web_page_preview=False,
                 message_text="dasdasda <a href='https://s.ftcdn.net/v2013/pics/all/curated/RKyaEDwp8J7JKeZWQPuOVWvkUjGQfpCx_cover_580.jpg'>&#8204</a>"
             )
-
         )
         resultes.append(result1)
 

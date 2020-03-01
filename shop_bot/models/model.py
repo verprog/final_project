@@ -5,47 +5,73 @@ import pandas
 connect('shop_bot', 'default', host='localhost')
 
 class User(Document):
-    STATES = (
-        ('products', 'products'),
-        ('categories', 'categories')
-    )
-    telegram_id = StringField(max_length=32, required=True, unique=True)
+    telegram_id = IntField(min_value=0) #StringField(max_length=32, required=True, unique=True) #StringField
     username = StringField(max_length=128)
     fullname = StringField(max_length=256)
     phone_number = StringField(max_length=20)
     email = EmailField()
-    state = StringField(choices=STATES)
+    create_user = DateTimeField()
+
+    @classmethod
+    def create_user(cls, **kwargs):
+        try:
+            User.objects.get(telegram_id=kwargs['telegram_id'])
+        except:
+            User.update(cls, **kwargs).save()
+            # cls(**kwargs).save()
 
 
 class Cart(Document):
     user = ReferenceField(User)
     is_archived = BooleanField(default=False)
+    type_delivery = StringField(max_length=128)
+    confirmed_date = DateTimeField(required=False)
 
     @classmethod
     def get_or_create_cart(cls, user_id):
-        user = User.objects.get(id=user_id)
-        cart = cls.objects.get(user=user_id, is_archived=False)
+
+        try:
+            user = User.objects.get(telegram_id=user_id)
+        except:
+            User.objects.create(telegram_id=user_id)
+            user = User.objects.get(telegram_id=user_id)
+
+        cart = cls.objects.filter(user=user, is_archived=False)
 
         if not cart:
-            cart = cls.objects.create(user=user)
-        return cart
+            return cls.objects.create(user=user)
+        return cart.get()
 
+    def add_product_to_cart(self, product):
+        CartProduct.objects.create(cart=self, product=product)
+        self.save()
 
-    def get_cart_products(self):
-        return CartProduct.objects.filter(cart=self)
+    def get_count_product(self, product):
+        quantity = CartProduct.objects(cart=self, product=product).count()
+        return quantity
 
-    def add_product_to_cart(self, product_id):
-        CartProduct.objects.create(
-            cart=self,
-            product=Product.get_product(product_id)
-        )
+    def decrease_qty_product_cart(self, product):
+        if self.get_count_product(product=product) > 0:
+            CartProduct.objects.filter(cart=self, product=product).first().delete()
+            self.save()
 
     def delete_product_from_cart(self, product):
-        CartProduct.objects.filter(cart=self, product=product).first.delete()
+        CartProduct.objects.filter(cart=self, product=product).delete()
+        self.save()
 
-    # To do overthink
-    # def get_sum(self):
-    #     return CartProduct.objects.
+    def get_cart_products(self):
+        filter_prod = CartProduct.objects.filter(cart=self)
+        return filter_prod
+
+    def confirmed_cart(self):
+        CartProduct.objects(cart=self).delete()
+        type_delivery
+        self.save()
+
+    def clear_cart(self):
+        CartProduct.objects(cart=self).delete()
+        self.save()
+
 
 
 class CartProduct(Document):
@@ -85,15 +111,15 @@ class Category(Document):
         return cls(**kwargs).save()
 
     def get_products(self):
-        Product.objects.filter(
-            category=self
-        )
+        product = Product.objects.filter(category=self)
+        return product
 
 
 class Product(Document):
     article = StringField(max_length=32, required=True)
     title = StringField(min_length=1, max_length=255, required=True)
     description = StringField(max_length=4096)
+    brand = StringField(max_length=255)
     price = IntField(min_value=1, required=True)
     in_stock = IntField(min_value=0, default=0)
     discount_price = IntField(min_value=1)
@@ -103,10 +129,10 @@ class Product(Document):
     category = ReferenceField(Category, required=True)
 
     def get_price(self):
-        return self.price if not self.discount_price else self.discount_price
+        return self.discount_price if self.price > self.discount_price else self.price
 
-    def get_product(cls, **kwargs):
-        cls.objects.get(**kwargs)
+    def get_product(self, product_id):
+        return self.objects.get(id=product_id)
 
 class Texts(Document):
     TEXT_TYPE = (
@@ -118,14 +144,50 @@ class Texts(Document):
     body = StringField(max_length=2048)
 
 
+if __name__ == "__main__":
+    pass
 
-# if __name__ == "__main__":
-    #####Create@#######
-    # category_dict = {
-    #     'title' : 'Category1',
-    #     'description' : 'Category 1 description',
-    #     'is_root' : True,
-    # }
+    # ####Create structure catalog @#######
+    # from structure_group import (category_dict, subcategori_dict)
+    # import csv
+    # # connect("shop_bot").drop_database("shop_bot")
+    #
+    # for root in category_dict:
+    #     root_cat = Category.objects.create(**root)
+    #     for sub in subcategori_dict:
+    #         if root['title'] in sub.keys():
+    #             if type(sub[root['title']])== list:
+    #                 for itm in sub[root['title']]:
+    #                     sub_cat = Category(**itm)
+    #                     root_cat.add_subcategory(sub_cat)
+    #             else:
+    #                 sub_cat = Category(**sub[root['title']])
+    #                 root_cat.add_subcategory(sub_cat)
+    #
+    # with open("items.csv", encoding='utf-8') as f:
+    #     err = 0
+    #     records = csv.DictReader(f, delimiter=';')
+    #     # print(*records)
+    #     for row in records:
+    #         row["category"] = Category.objects.get(title=row["category"])
+    #         Product.objects.create(**row)
+
+
+            # Product.objects.create(
+            #                         # category;
+            #                         article=row["article"],
+            #                         title=row["title"],
+            #                         price=row["price"],
+            #                         in_stock=row["in_stock"],
+            #                         description=row["description"],
+            #                         brand=row["brand"],
+            #                         url_image=row["url_image"],
+            #                         category=Category.objects.get(title=row["category"])
+            #                         )
+
+
+
+
     # root_cat = Category.objects.create(**category_dict)
     #
     # for i in range(5):
