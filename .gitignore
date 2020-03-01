@@ -3,7 +3,7 @@ venv
 test*.py
 __pycache__
 *.xlsx
-
+__init__.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
