@@ -13,12 +13,14 @@ class User(Document):
     create_user = DateTimeField()
 
     @classmethod
-    def create_user(cls, **kwargs):
+    def upsert_user(cls, **kwargs):
+        # cls.update(**kwargs, upsert=True)
+        # cls(**kwargs).save()
         try:
-            User.objects.get(telegram_id=kwargs['telegram_id'])
+            update_user = User.objects.get(telegram_id=kwargs['telegram_id'])
+            update_user.update(**kwargs)
         except:
-            User.update(cls, **kwargs).save()
-            # cls(**kwargs).save()
+            cls(**kwargs).save()
 
 
 class Cart(Document):
@@ -42,6 +44,16 @@ class Cart(Document):
             return cls.objects.create(user=user)
         return cart.get()
 
+    @classmethod
+    def get_cart(cls, user_id):
+        try:
+            user = User.objects.get(telegram_id=user_id)
+        except:
+            User.objects.create(telegram_id=user_id)
+            user = User.objects.get(telegram_id=user_id)
+        cart = cls.objects.filter(user=user, is_archived=False)
+        return cart.get()
+
     def add_product_to_cart(self, product):
         CartProduct.objects.create(cart=self, product=product)
         self.save()
@@ -63,15 +75,12 @@ class Cart(Document):
         filter_prod = CartProduct.objects.filter(cart=self)
         return filter_prod
 
-    def confirmed_cart(self):
-        CartProduct.objects(cart=self).delete()
-        type_delivery
-        self.save()
+    def confirmed_cart(self, **kwargs):
+        self.update(**kwargs)
 
     def clear_cart(self):
         CartProduct.objects(cart=self).delete()
         self.save()
-
 
 
 class CartProduct(Document):
@@ -123,6 +132,7 @@ class Product(Document):
     price = IntField(min_value=1, required=True)
     in_stock = IntField(min_value=0, default=0)
     discount_price = IntField(min_value=1)
+    discount_sign = IntField()
     attributes = EmbeddedDocumentField(Attributes)
     url_image = StringField(max_length=4096)
     extra_data = StringField(max_length=4096)
@@ -131,8 +141,18 @@ class Product(Document):
     def get_price(self):
         return self.discount_price if self.price > self.discount_price else self.price
 
+    def get_quantity(self):
+        return self.in_stock
+
     def get_product(self, product_id):
         return self.objects.get(id=product_id)
+
+    @classmethod
+    def get_promo_products(cls):
+        promo = cls.objects.filter(discount_sign=1)
+        return promo
+
+
 
 class Texts(Document):
     TEXT_TYPE = (

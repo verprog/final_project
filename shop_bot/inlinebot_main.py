@@ -1,7 +1,6 @@
-from telebot import TeleBot
+from telebot import TeleBot, types
 from config import TOKEN
 from keyboards import START_KB
-from telebot import types
 
 
 bot = TeleBot(token=TOKEN)
