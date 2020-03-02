@@ -43,45 +43,47 @@ def start(message):
 def categories(message):
     bot.send_message(message.chat.id, 'Выберите категорию', reply_markup=categori_kb_inl)
 
+
 @bot.message_handler(func=lambda message: message.text == START_KB['promo'])
 def categories(message):
-    resultes = []
+    kb = InlineKeyboardMarkup()
     for product in Product.get_promo_products():
-        print(product.price)
-        kb = InlineKeyboardMarkup()
-        button = [InlineKeyboardButton(text=' + Добавить в корзину', callback_data=f'producttocar_{product.id}')]
-        kb.add(*button)
-
         if int(product.discount_price) < int(product.price):
-            price = f'Акционное предложение: {round((int(product.discount_price) / int(product.price) - 1) * 100)} % \n {product.discount_price} (Старая цена: {product.price})'
+            price = f'{product.discount_price}'
         else:
             price = product.price
+        button = [InlineKeyboardButton(text=f'{product.title[0:15]} Цена: {price}', callback_data=f'producttocar_{product.id}')]
+        kb.add(*button)
 
-        result1 = InlineQueryResultArticle(
-            id=str({product.id}),
-            title=f'{product.title}',
-            description=f'Цена: {price}',
-            thumb_url=f'{product.url_image}'.split(' ')[0],
-            reply_markup=kb,
-            input_message_content=InputTextMessageContent(
-                parse_mode='HTML',
-                disable_web_page_preview=False,
-                message_text=f"<b>{product.title}</b> \n {product.description} \n <b>Цена: {price}</b><a href='{str(product.url_image).split(' ')[0]}'>&#8204</a>"
-            )
-        )
-        resultes.append(result1)
-    bot.ans
-    bot.answer_inline_query(message.message.id, resultes)
+    bot.send_message(message.chat.id,'Список акционных товаров:',reply_markup=kb)
+
+@bot.message_handler(func=lambda message: message.text == START_KB['cabinet'])
+def categories(message):
+    cart = Cart.get_orders(telegram_id=str(message.from_user.id))
+
+    for order in cart:
+        products = {str(cart_product.product.id): cart_product.product for cart_product in order.get_cart_products()}
+        sum_total = 0
+        for id_pro, cart_pro in products.items():
+            sum_total += order.get_count_product(product=cart_pro.id)*cart_pro.get_price()
+            header = f'ООО "Рога и Копыта"\n г.Киев'
+            date_order = order['confirmed_date'].strftime("%m/%d/%Y, %H:%M:%S")
+            type_deliv = order['type_delivery']
+            user_info = f'Покупатель: {order.user.username}' if order.user.phone_number is None else \
+                f'Покупатель: {order.user.username}\nТел. {order.user.phone_number}'
+            delimiter = '-'*40
+        order_info = f'{header}\nДата: {date_order}\n{delimiter}\nСумма заказа: {sum_total}\nНДС 20%: {round(sum_total/6,2)}' \
+                     f'\n{delimiter}\n{user_info}\nТип поставки: {type_deliv}'
+        bot.send_message(message.chat.id, order_info, reply_markup='')
 
 
 @bot.callback_query_handler(func=lambda call: call.data.split('_')[0] == 'category')
 def get_cat_or_products(call):
     kb = InlineKeyboardMarkup()
     category = Category.objects.get(id=call.data.split('_')[1])
-    bot.send_message(chat_id=call.message.chat.id, text=call.data.split('_')[1])
     if category.subcategory:
         buttons = [
-            InlineKeyboardButton(text=cat.title, switch_inline_query_current_chat='subcat_' + str(cat.id)  # #,callback_data='subcat_' + str(cat.id)
+            InlineKeyboardButton(text=cat.title, switch_inline_query_current_chat='subcat_' + str(cat.id)
                                  ) for cat in category.subcategory
         ]
 
@@ -159,7 +161,6 @@ def get_cart(message):
             InlineKeyboardButton(text='🆑 Очистить корзину', callback_data='clear_car'),
             InlineKeyboardButton(text='💚 Оформить заказ', callback_data='confirm_order'),
         )
-        # text = f'Общаяя сумма заказа: {sum_total}',
         bot.send_message(message.from_user.id,text='Желаете оформить заказ?',  reply_markup=kb1)
 
 
@@ -223,9 +224,6 @@ def change_qty_prod(call):
 
         elif len(cart.get_cart_products()) == 0:
             Cart.clear_cart(cart)
-
-            for id in range((call.message.message_id - 50), call.message.message_id):
-                bot.delete_message(call.message.chat.id, id)
             bot.answer_callback_query(call.id, show_alert=True, text="💔 Корзина очищена")
             bot.send_message(call.from_user.id, START_PAGE, reply_markup=root_kb_mk)
 
@@ -250,9 +248,22 @@ def order_clear(call):
 @bot.callback_query_handler(func=lambda call: call.data.split('_')[0] == 'confirm')
 def order_confirm(call):
     cart = Cart.get_or_create_cart(user_id=call.from_user.id)
+    # cart_prod =
     if len(cart.get_cart_products()) == 0:
         bot.send_message(call.from_user.id,text='Вы еще не добавили товары в корзину',  reply_markup='')
     else:
+        products = {str(cart_product.product.id): cart_product.product for cart_product in cart.get_cart_products()}
+        sum_total = 0
+        for id_pro, cart_pro in products.items():
+            sum_total += cart.get_count_product(product=cart_pro.id) * cart_pro.get_price()
+            header = f'ООО "Рога и Копыта"\n г.Киев'
+            user_info = f'Покупатель: {cart.user.username}' if cart.user.phone_number is None else \
+                f'Покупатель: {cart.user.username}\nТел. {cart.user.phone_number}'
+            delimiter = '-' * 40
+            order_info = f'{header}\n{delimiter}\nСумма заказа: {sum_total}\n' \
+                         f'НДС 20%: {round(sum_total/6,2)}\n{delimiter}\n{user_info}'
+        bot.send_message(call.from_user.id, order_info, reply_markup='')
+
         orders_menu = ReplyKeyboardMarkup(row_width=2)
         orders_menu.add(
             KeyboardButton(text='🗺️ Самовывоз - ближайший магазин', request_location=True),

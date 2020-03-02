@@ -14,8 +14,6 @@ class User(Document):
 
     @classmethod
     def upsert_user(cls, **kwargs):
-        # cls.update(**kwargs, upsert=True)
-        # cls(**kwargs).save()
         try:
             update_user = User.objects.get(telegram_id=kwargs['telegram_id'])
             update_user.update(**kwargs)
@@ -81,6 +79,12 @@ class Cart(Document):
     def clear_cart(self):
         CartProduct.objects(cart=self).delete()
         self.save()
+
+    @classmethod
+    def get_orders(cls, telegram_id, isarchived=True):
+        user = User.objects.get(telegram_id=telegram_id)
+        cart = cls.objects.filter(user=user, is_archived=isarchived)
+        return cart
 
 
 class CartProduct(Document):
