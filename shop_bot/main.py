@@ -1,8 +1,10 @@
 from telebot import TeleBot
 from bot import TGBot
-from config import TOKEN, WEBHOOK_URL, PATH
-from models.model import (Texts, Category, Product, Cart)
-from keyboards import START_KB
+from config import (TOKEN, WEBHOOK_URL, PATH, MAGAZINS)
+from models.model import (User, Texts, Category, Product, Cart)
+from keyboards import (START_KB, START_PAGE, START_HELLO)
+from geopy.distance import geodesic
+import datetime
 from telebot.types import (ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup, Update,
                            InlineQueryResultArticle, InputTextMessageContent)
 from flask import Flask, request, abort
