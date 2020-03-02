@@ -3,7 +3,8 @@ from bot import TGBot
 from config import TOKEN, WEBHOOK_URL, PATH
 from models.model import (Texts, Category, Product, Cart)
 from keyboards import START_KB
-from telebot.types import (ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup, Update)
+from telebot.types import (ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup, Update,
+                           InlineQueryResultArticle, InputTextMessageContent)
 from flask import Flask, request, abort
 
 app = Flask(__name__)
