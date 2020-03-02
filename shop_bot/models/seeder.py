@@ -1,5 +1,5 @@
-from models.model import *
-from models.structure_group import (category_dict, subcategori_dict)
+from model import *
+from structure_group import (category_dict, subcategori_dict)
 import csv
 from mongoengine import *
 
