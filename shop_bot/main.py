@@ -64,7 +64,8 @@ def start(message):
     User.upsert_user(
         telegram_id=message.from_user.id,
         username=message.from_user.first_name,
-        fullname=f'{message.from_user.username} {message.from_user.last_name}'
+        fullname=f'{message.from_user.username} {message.from_user.last_name}',
+        create_user=datetime.datetime.now()
         )
 
 
@@ -274,7 +275,7 @@ def order_clear(call):
 @bot.callback_query_handler(func=lambda call: call.data.split('_')[0] == 'confirm')
 def order_confirm(call):
     cart = Cart.get_or_create_cart(user_id=call.from_user.id)
-    # cart_prod =
+    order_info = ''
     if len(cart.get_cart_products()) == 0:
         bot.send_message(call.from_user.id,text='Вы еще не добавили товары в корзину',  reply_markup='')
     else:

@@ -35,10 +35,6 @@ class CategoryResource(Resource):
 
     def put(self, cat_id):
         """ PUT method for updating
-            Takes the json like
-            {
-                "title": "Updated category name",
-            }
         :param cat_id: category id that we want to update
         """
         if not cat_id:
@@ -71,19 +67,6 @@ class ProductResource(Resource):
 
     def post(self):
         """POST method for Product
-        :param
-        Takes json with fields like
-            {
-                "title": "Panasonic KX-TGE434B",
-                "article": "KX-TGE434B",
-                "description": "Expandable Cordless Phone System with Answering Machine - 4 Handsets - KX-TGE434B",
-                "in_stock": 100,
-                "id": "5e56d68c91e9935029e6b986",
-                "price": 10995,
-                "category": "Panasonic",
-                "discount_price": 10000,
-                "img_url": "https://shop.panasonic.com/dw/image/v2/AASQ_PRD/on/demandware.static/-/Sites-shop-pna-master-catalog/default/dw28e2f194/product/images/KX-TGE434B_ALT01.jpg?sw=1000&sh=1000&sm=fit"
-            }
         :return: The json with new project inserted
         """
         err = ProductSchema().validate(request.json)
@@ -94,11 +77,6 @@ class ProductResource(Resource):
 
     def put(self, product_id):
         """ PUT method for updating product
-            Takes the json like
-            {
-                "title": "Updated product name",
-                "price": [Updated price like 15000]
-            }
         :param product_id: product id that we want to update
         """
         if not product_id:
@@ -128,10 +106,4 @@ class UserResource(Resource):
         except DoesNotExist:
             return {'msg': f'User with id {user_id} not exists'}
 
-        if user_id:
-            query.calc_total()
-        else:
-            users = [user for user in query]
-            for user in users:
-                user.calc_total()
         return UserSchema().dump(query, many=many)

@@ -35,7 +35,8 @@ def start(message):
     User.upsert_user(
         telegram_id=message.from_user.id,
         username=message.from_user.first_name,
-        fullname=f'{message.from_user.username} {message.from_user.last_name}'
+        fullname=f'{message.from_user.username} {message.from_user.last_name}',
+        create_user=datetime.datetime.now()
         )
 
 
@@ -248,7 +249,7 @@ def order_clear(call):
 @bot.callback_query_handler(func=lambda call: call.data.split('_')[0] == 'confirm')
 def order_confirm(call):
     cart = Cart.get_or_create_cart(user_id=call.from_user.id)
-    # cart_prod =
+    order_info=''
     if len(cart.get_cart_products()) == 0:
         bot.send_message(call.from_user.id,text='Вы еще не добавили товары в корзину',  reply_markup='')
     else:
@@ -303,11 +304,6 @@ def user_contact(message):
     cart.confirmed_cart(is_archived=True, type_delivery='Адресная доставка', confirmed_date=datetime.datetime.now())
     bot.send_message(message.from_user.id, text=f"В ближайшее время с Вами свяжется наш менеджер для принятия заказа", reply_markup=root_kb_mk)
 
-
-
-
-
-# buttons.append(InlineKeyboardButton(text='<<< Назад', callback_data=str(category.parent.id)))
 
 """
 WEBHOOK_HOST = https://33.46.32.19:8443    ----https://serverdomain.com

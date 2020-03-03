@@ -1,11 +1,10 @@
 from mongoengine import *
-from pprint import pprint
-import pandas
+from datetime import datetime
 
 connect('shop_bot', 'default', host='localhost')
 
 class User(Document):
-    telegram_id = IntField(min_value=0) #StringField(max_length=32, required=True, unique=True) #StringField
+    telegram_id = IntField(min_value=0)
     username = StringField(max_length=128)
     fullname = StringField(max_length=256)
     phone_number = StringField(max_length=20)
@@ -18,7 +17,8 @@ class User(Document):
             update_user = User.objects.get(telegram_id=kwargs['telegram_id'])
             update_user.update(**kwargs)
         except:
-            cls(**kwargs).save()
+            cls(**kwargs).save(),
+            cls(create_user=datetime.now()).save()
 
 
 class Cart(Document):
@@ -170,93 +170,4 @@ class Texts(Document):
 
 if __name__ == "__main__":
     pass
-
-    # ####Create structure catalog @#######
-    # from structure_group import (category_dict, subcategori_dict)
-    # import csv
-    # # connect("shop_bot").drop_database("shop_bot")
-    #
-    # for root in category_dict:
-    #     root_cat = Category.objects.create(**root)
-    #     for sub in subcategori_dict:
-    #         if root['title'] in sub.keys():
-    #             if type(sub[root['title']])== list:
-    #                 for itm in sub[root['title']]:
-    #                     sub_cat = Category(**itm)
-    #                     root_cat.add_subcategory(sub_cat)
-    #             else:
-    #                 sub_cat = Category(**sub[root['title']])
-    #                 root_cat.add_subcategory(sub_cat)
-    #
-    # with open("items.csv", encoding='utf-8') as f:
-    #     err = 0
-    #     records = csv.DictReader(f, delimiter=';')
-    #     # print(*records)
-    #     for row in records:
-    #         row["category"] = Category.objects.get(title=row["category"])
-    #         Product.objects.create(**row)
-
-
-            # Product.objects.create(
-            #                         # category;
-            #                         article=row["article"],
-            #                         title=row["title"],
-            #                         price=row["price"],
-            #                         in_stock=row["in_stock"],
-            #                         description=row["description"],
-            #                         brand=row["brand"],
-            #                         url_image=row["url_image"],
-            #                         category=Category.objects.get(title=row["category"])
-            #                         )
-
-
-
-
-    # root_cat = Category.objects.create(**category_dict)
-    #
-    # for i in range(5):
-    #     category_dict = {
-    #         'title': f'Category sub {i}',
-    #         'description': f'Category sub {i} description',
-    #     }
-    #     sub_cat = Category(**category_dict)
-    #     root_cat.add_subcategory(sub_cat)
-    # print(root_cat)
-
-    # cats = Category.objects.filter(is_root=True)
-    #
-    # for cat in cats:
-    #     print(cat)
-    #
-    #     if cat.subcategory:
-    #         for sub in cat.subcategory:
-    #             print({sub.parent})
-    #             print({sub})
-
-    ####ITEMS FREQUENCIES#####
-    # user = User.objects.create(telegram_id='12345')
-    # cart = Cart.objects.create(user=user)
-
-    # cart = Cart.objects.first()
-    # prodact = Product.objects.first()
-    # cart.add_product_to_cart(prodact)
-    # print(cart.get_cart())
-    ####Подсчет кол-ва товаров ####
-    # print(cart.get_cart().item_frequencies('product'))
-    # freq = cart.get_cart().item_frequencies('product')
-    # freq['product_id']
-
-    # for i in range(10):
-    #     prod = {'title': f'title{i}',
-    #             'article': f'article{i}',
-    #             'category': Category.objects.first(),
-    #             'price': 10 * i + 1
-    #             }
-    #     create_product = Product.objects.create(**prod)
-        # cart.add_product_to_cart(create_product)
-
-
-
-    # 5e386297
-    # aa5d9c72afb46610
 
