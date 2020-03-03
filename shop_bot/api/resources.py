@@ -2,7 +2,7 @@ from flask import request
 from flask_restful import Resource
 from mongoengine import DoesNotExist
 
-from api.schema import CategorySchema, ProductSchema, UserSchema
+from api.schema import CategorySchema, ProductSchema
 from models.model import Category, Product, User
 
 
@@ -93,17 +93,3 @@ class ProductResource(Resource):
             return {'msg': 'cat_id not defined for update'}
         Product.objects.get(id=product_id).delete()
         return {'msg': 'deleted'}
-
-
-class UserResource(Resource):
-    def get(self, user_id=None):
-        """ GET method for showing User information
-        :return: json with User information
-        """
-        many = not user_id
-        try:
-            query = User.objects.get(id=user_id) if user_id else User.objects()
-        except DoesNotExist:
-            return {'msg': f'User with id {user_id} not exists'}
-
-        return UserSchema().dump(query, many=many)
