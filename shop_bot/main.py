@@ -9,7 +9,7 @@ from telebot.types import (ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardBu
                            InlineQueryResultArticle, InputTextMessageContent)
 from flask import Flask, request, abort
 from flask_restful import Api
-from api.resources import CategoryResource, ProductResource, UserResource
+from api.resources import CategoryResource, ProductResource
 
 
 app = Flask(__name__)
@@ -18,7 +18,6 @@ api = Api(app, prefix='/bot/v1')
 
 api.add_resource(CategoryResource, '/category', '/category/<string:cat_id>')
 api.add_resource(ProductResource, '/product', '/product/<string:product_id>')
-api.add_resource(UserResource, '/user', '/user/<string:user_id>')
 
 
 bot = TeleBot(token=TOKEN)

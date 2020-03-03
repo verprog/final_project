@@ -1,15 +1,5 @@
 from marshmallow import Schema, fields
 
-class UserSchema(Schema):
-    id = fields.String()
-    telegram_id = fields.Int(min_value=0)
-    username = fields.String(max_length=128)
-    fullname = fields.String(max_length=256)
-    phone_number = fields.String(max_length=20)
-    email = fields.String()
-    create_user = fields.DateTime()
-
-
 class CategorySchema(Schema):
     id = fields.String()
     title = fields.String(min_length=1, max_length=255, required=True, unique=False)
