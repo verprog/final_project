@@ -8,8 +8,19 @@ import datetime
 from telebot.types import (ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup, Update,
                            InlineQueryResultArticle, InputTextMessageContent)
 from flask import Flask, request, abort
+from flask_restful import Api
+from api.resources import CategoryResource, ProductResource, UserResource
+
 
 app = Flask(__name__)
+
+api = Api(app, prefix='/bot/v1')
+
+api.add_resource(CategoryResource, '/category', '/category/<string:cat_id>')
+api.add_resource(ProductResource, '/product', '/product/<string:product_id>')
+api.add_resource(UserResource, '/user', '/user/<string:user_id>')
+
+
 bot = TeleBot(token=TOKEN)
 
 
@@ -327,20 +338,13 @@ PKEM = '/home/sertifivcatewebhook_pkem.pem'
 PKEY =  '/home/sertifivcatewebhook_pkey.pem'
 
 bot.set_webhook(WEBHOOK_HOST,open('r',PKEM))
-
-
-
-
 """
 if __name__ == '__main__':
     import time
     print('Started!')
     bot.remove_webhook()
-    time.sleep(1)
+    time.sleep(2)
     bot.set_webhook(url=WEBHOOK_URL,
                     certificate=open('nginx-selfsigned.crt', 'r')
                     )
     app.run(host='127.0.0.1', port=5000, debug=True)
-
-# bot.polling()
-
